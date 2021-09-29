@@ -1,24 +1,47 @@
 ﻿@page "/monitor"
 
 @using SocialTechies_BlazorWebApp.Data.Aws
+@using Radzen
 @inject AwsService AwsService
+
 
 
 
 <h1>Monitor</h1>
 
-@if (cpuUtilization == null) {
+@if (cpuUtilization == null)
+{
     <p><em>Loading...</em></p>
 }
-else {
+else
+{
+
     <div>@cpuUtilization.Datapoints[0].Maximum</div>
+
+    <div class="col-sm-12 col-lg-8 my-3 my-lg-5">
+        <RadzenArcGauge Style="width: 100%; height: 250px;">
+            <RadzenArcGaugeScale Step="20" Min="0" Max="101" MinorStep="2" Radius="1.5" TickPosition=@tickPosition Y="0.9" Margin="0">
+                <RadzenArcGaugeScaleValue Value=@latestEntry.Maximum ShowValue=true>
+                    <Template Context="pointer">
+                        <h4>
+                            @latestEntry.Maximum <sup>%</sup>
+                        </h4>
+                    </Template>
+                </RadzenArcGaugeScaleValue>
+            </RadzenArcGaugeScale>
+        </RadzenArcGauge>
+    </div>
+
 }
 
 
 @code {
     private EcsMetrics.CpuUtilization cpuUtilization;
+    private EcsMetrics.CpuUtilization.Datapoint latestEntry;
+    GaugeTickPosition tickPosition = GaugeTickPosition.Outside;
 
-    protected override async Task OnInitializedAsync() {
+    protected override async Task OnInitializedAsync()
+    {
         // dev reports instance
         string instanceId = "i-01016354e1d126635";
         int period = 3600;
@@ -26,5 +49,7 @@ else {
         DateTime endTime = DateTime.Now;
 
         cpuUtilization = await AwsService.GetCpuUtilization(instanceId, period, startTime, endTime);
+
+        latestEntry = cpuUtilization.Datapoints.OrderByDescending(t => t.TimeStamp).FirstOrDefault();
     }
 }
