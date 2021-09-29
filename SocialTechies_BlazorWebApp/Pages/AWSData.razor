@@ -1,0 +1,44 @@
+﻿@page "/awsdata"
+
+@using SocialTechies_BlazorWebApp.Data
+@inject AWSDataService AWSDataService
+
+<h1>AWS Monitoring</h1>
+
+<p>This component demonstrates fetching data from an AWS service.</p>
+
+@if (awsData == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Maximum</th>
+                <th>Unit</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var record in awsData)
+            {
+                <tr>
+                    <td>@record.Timestamp.ToShortDateString()</td>
+                    <td>@record.Maximum</td>
+                    <td>@record.Unit</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private SocialTechies_BlazorWebApp.Data.AWSData[] awsData;
+
+    protected override async Task OnInitializedAsync()
+    {
+        awsData = await AWSDataService.CPUUtilizationAsync(DateTime.Now);
+    }
+}

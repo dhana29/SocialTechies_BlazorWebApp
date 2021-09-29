@@ -6,11 +6,19 @@ using System.Threading.Tasks;
 
 namespace SocialTechies_BlazorWebApp.Data.Aws {
     public class AwsService {
-        public Task<EcsMetrics.CpuUtilization> GetCpuUtilization(string instanceId, int period, DateTime startTime, DateTime endTime) {
+        public Task<EcsMetrics.CpuUtilization> GetCpuUtilizationForInstance(string instanceId, int period, DateTime startTime, DateTime endTime) {
             string startTimeString = startTime.ToString("s");
             string endTimeString = endTime.ToString("s");
             return Task.FromResult(
-                JsonConvert.DeserializeObject<EcsMetrics.CpuUtilization>(RunAwsProcessAsync($"cloudwatch get-metric-statistics --namespace AWS/EC2 --metric-name CPUUtilization --period {period} --statistics Maximum --dimensions Name=InstanceId,Value=${instanceId} --start-time {startTimeString} --end-time {endTimeString}").Result)
+                JsonConvert.DeserializeObject<EcsMetrics.CpuUtilization>(RunAwsProcessAsync($"cloudwatch get-metric-statistics --namespace AWS/EC2 --metric-name CPUUtilization --period {period} --statistics Maximum --dimensions Name=InstanceId,Value={instanceId} --start-time {startTimeString} --end-time {endTimeString}").Result)
+            );
+        }
+
+        public Task<EcsMetrics.CpuUtilization> GetCpuUtilizationForAutoscalingGroup(string autoScalingGroup, int period, DateTime startTime, DateTime endTime) {
+            string startTimeString = startTime.ToString("s");
+            string endTimeString = endTime.ToString("s");
+            return Task.FromResult(
+                JsonConvert.DeserializeObject<EcsMetrics.CpuUtilization>(RunAwsProcessAsync($"cloudwatch get-metric-statistics --namespace AWS/EC2 --metric-name CPUUtilization --period {period} --statistics Maximum --dimensions Name=AutoScalingGroupName,Value={autoScalingGroup} --start-time {startTimeString} --end-time {endTimeString}").Result)
             );
         }
 
@@ -24,22 +32,20 @@ namespace SocialTechies_BlazorWebApp.Data.Aws {
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true
-                    //CreateNoWindow = true,
-                    //WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden
                 },
                 EnableRaisingEvents = true
             };
-            process.Exited += (sender, args) => {
-                //string output = process.StandardOutput.ReadToEnd();
-                var output = process.StandardOutput.ReadToEndAsync();
-                tcs.SetResult(output.Result);
-                process.Dispose();
+
+            string data = String.Empty;
+            process.OutputDataReceived += (sender, args) => {
+                data += args.Data;
             };
 
             process.Start();
             process.BeginOutputReadLine();
             process.WaitForExit();
 
+            tcs.SetResult(data);
             return tcs.Task;
         }
     }
