@@ -4,9 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SocialTechies_BlazorWebApp.Data.Aws {
-    public class AwsService {
-        public Task<EcsMetrics.CpuUtilization> GetCpuUtilization(string instanceId, int period, DateTime startTime, DateTime endTime) {
+namespace SocialTechies_BlazorWebApp.Data.Aws
+{
+    public class AwsService
+    {
+        public Task<EcsMetrics.CpuUtilization> GetCpuUtilizationForInstance(string instanceId, int period, DateTime startTime, DateTime endTime)
+        {
             string startTimeString = startTime.ToString("s");
             string endTimeString = endTime.ToString("s");
             return Task.FromResult(
@@ -14,10 +17,21 @@ namespace SocialTechies_BlazorWebApp.Data.Aws {
             );
         }
 
+        public Task<EcsMetrics.CpuUtilization> GetCpuUtilizationForAutoscalingGroup(string autoScalingGroup, int period, DateTime startTime, DateTime endTime)
+        {
+            string startTimeString = startTime.ToString("s");
+            string endTimeString = endTime.ToString("s");
+            return Task.FromResult(
+                JsonConvert.DeserializeObject<EcsMetrics.CpuUtilization>(RunAwsProcessAsync($"cloudwatch get-metric-statistics --namespace AWS/EC2 --metric-name CPUUtilization --period {period} --statistics Maximum --dimensions Name=AutoScalingGroupName,Value={autoScalingGroup} --start-time {startTimeString} --end-time {endTimeString}").Result)
+            );
+        }
 
-        private Task<string> RunAwsProcessAsync(string parameters) {
+
+        private Task<string> RunAwsProcessAsync(string parameters)
+        {
             var tcs = new TaskCompletionSource<string>();
-            System.Diagnostics.Process process = new System.Diagnostics.Process() {
+            System.Diagnostics.Process process = new System.Diagnostics.Process()
+            {
                 StartInfo = {
                     FileName = "cmd.exe",
                     Arguments = $"/C aws {parameters}",
