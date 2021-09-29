@@ -8,7 +8,7 @@
 
 
 
-<h1>Monitor</h1>
+<h1>Monitor</h1><span class="float-right">Last updated at @theTime</span>
 
 @if (cpuUtilization == null)
 {
@@ -65,6 +65,7 @@ else
     GaugeTickPosition tickPosition = GaugeTickPosition.Outside;
     bool smooth = false;
     string title = string.Empty;
+    string theTime = DateTime.Now.ToLongTimeString();
 
     protected override async Task OnInitializedAsync()
     {
@@ -74,9 +75,17 @@ else
         int period = 3600;
         DateTime startTime = DateTime.Now.AddDays(-3);
         DateTime endTime = DateTime.Now;
-
-        //cpuUtilization = await AwsService.GetCpuUtilization(instanceId, period, startTime, endTime);
         cpuUtilization = await AwsService.GetCpuUtilizationForAutoscalingGroup(autoscalingGroup, period, startTime, endTime);
+        while (true)
+        {
+
+            StateHasChanged();   // refreshes everything, may interfere with your pages
+                                 //cpuUtilization = await AwsService.GetCpuUtilization(instanceId, period, startTime, endTime);
+            await Task.Delay(30_000);
+            theTime = DateTime.Now.ToLongTimeString();
+            cpuUtilization = await AwsService.GetCpuUtilizationForAutoscalingGroup(autoscalingGroup, period, startTime, endTime);
+        }
+
     }
 
 
