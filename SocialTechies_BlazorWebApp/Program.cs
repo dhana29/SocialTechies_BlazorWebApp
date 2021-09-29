@@ -20,9 +20,9 @@ namespace SocialTechies_BlazorWebApp
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureServices((hostContext, services) => {
-                    services.AddHostedService<TimesBackgroundTask>();
-                })
+                //.ConfigureServices((hostContext, services) => {
+                //    services.AddHostedService<TimesBackgroundTask>();
+                //})
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
