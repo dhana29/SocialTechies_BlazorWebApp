@@ -1,0 +1,30 @@
+﻿@page "/monitor"
+
+@using SocialTechies_BlazorWebApp.Data.Aws
+@inject AwsService AwsService
+
+
+
+<h1>Monitor</h1>
+
+@if (cpuUtilization == null) {
+    <p><em>Loading...</em></p>
+}
+else {
+    <div>@cpuUtilization.Datapoints[0].Maximum</div>
+}
+
+
+@code {
+    private EcsMetrics.CpuUtilization cpuUtilization;
+
+    protected override async Task OnInitializedAsync() {
+        // dev reports instance
+        string instanceId = "i-01016354e1d126635";
+        int period = 3600;
+        DateTime startTime = DateTime.Now.AddDays(-3);
+        DateTime endTime = DateTime.Now;
+
+        cpuUtilization = await AwsService.GetCpuUtilization(instanceId, period, startTime, endTime);
+    }
+}
