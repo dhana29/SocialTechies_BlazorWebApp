@@ -2,6 +2,7 @@
 
 @using SocialTechies_BlazorWebApp.Data.Aws
 @using Radzen
+@using System.Globalization
 @inject AwsService AwsService
 
 
@@ -32,13 +33,38 @@ else
         </RadzenArcGauge>
     </div>
 
+
+
+       
+
+    <div>
+
+        <RadzenChart>
+            <RadzenLineSeries Smooth="@smooth" Data="@cpuUtilization.Datapoints" CategoryProperty="TimeStamp" Title="@title" LineType="LineType.Dashed" ValueProperty="Maximum">
+                <RadzenMarkers MarkerType="MarkerType.Square" />
+            </RadzenLineSeries>
+
+            <RadzenCategoryAxis Padding="20" Formatter="@FormatTime"/>
+            <RadzenValueAxis >
+                <RadzenGridLines Visible="true"  />
+                <RadzenAxisTitle Text="%" />
+            </RadzenValueAxis>
+        </RadzenChart>
+
+    </div>
+
+
+
 }
 
 
 @code {
     private EcsMetrics.CpuUtilization cpuUtilization;
     private EcsMetrics.CpuUtilization.Datapoint latestEntry;
+
     GaugeTickPosition tickPosition = GaugeTickPosition.Outside;
+    bool smooth = false;
+    string title = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -51,5 +77,19 @@ else
         cpuUtilization = await AwsService.GetCpuUtilization(instanceId, period, startTime, endTime);
 
         latestEntry = cpuUtilization.Datapoints.OrderByDescending(t => t.TimeStamp).FirstOrDefault();
+        title = latestEntry != null ? latestEntry.Unit : "%";
     }
+
+
+    string FormatTime(object value)
+    {
+        var datetime = (DateTime)value;
+
+        if (datetime.Hour == 0 && datetime.Minute == 0)
+            return datetime.ToString("yyyy-MM-dd");
+
+
+        return datetime.ToString("HH:mm");
+    }
+
 }
