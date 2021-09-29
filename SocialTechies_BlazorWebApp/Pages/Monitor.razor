@@ -1,5 +1,6 @@
 ﻿@page "/monitor"
 
+@using Radzen
 @using SocialTechies_BlazorWebApp.Data.Aws
 @inject AwsService AwsService
 
@@ -11,21 +12,36 @@
     <p><em>Loading...</em></p>
 }
 else {
-    <div>@cpuUtilization.Datapoints[0].Maximum</div>
+    <div class="chart-container container">
+        <div class="row">
+            <div class="col-sm-12">
+                <RadzenChart>
+                    <RadzenLineSeries Title="asReports CPU Utilization" Data="@cpuUtilization.Datapoints" ValueProperty="Maximum" CategoryProperty="TimeStamp" Smooth="true">
+                        <RadzenMarkers MarkerType="MarkerType.Circle" />
+                    </RadzenLineSeries>
+                    <RadzenCategoryAxis Padding="20" />
+                    <RadzenValueAxis>
+                        <RadzenGridLines Visible="false" />
+                        <RadzenAxisTitle Text="% of CPU Utilized" />
+                    </RadzenValueAxis>
+                </RadzenChart>
+            </div>
+        </div>
+    </div>
 }
 
 
 @code {
     private EcsMetrics.CpuUtilization cpuUtilization;
+    private string autoscalingGroup = "asReports";
 
     protected override async Task OnInitializedAsync() {
         // dev reports instance
         @*string instanceId = "i-01016354e1d126635";*@
-    string autoscalingGroup = "asReports";
-    int period = 3600;
-    DateTime startTime = DateTime.Now.AddDays(-3);
-    DateTime endTime = DateTime.Now;
+        int period = 3600;
+        DateTime startTime = DateTime.UtcNow.AddDays(-3);
+        DateTime endTime = DateTime.UtcNow;
 
-    cpuUtilization = await AwsService.GetCpuUtilizationForAutoscalingGroup(autoscalingGroup, period, startTime, endTime);
-}
+        cpuUtilization = await AwsService.GetCpuUtilizationForAutoscalingGroup(autoscalingGroup, period, startTime, endTime);
+    }
 }
