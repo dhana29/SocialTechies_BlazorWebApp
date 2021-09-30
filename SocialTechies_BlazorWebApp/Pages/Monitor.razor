@@ -27,8 +27,8 @@
     private List<ApplicationContext> applications = new List<ApplicationContext>();
     string lastUpdatedTime = DateTime.Now.ToLongTimeString();
 
-    int period = 3600; // 15 minutes
-    DateTime startTime = DateTime.Now.AddDays(-2);
+    int period = 900; // 15 minutes
+    DateTime startTime = DateTime.Now.AddHours(-24);
     DateTime endTime = DateTime.Now;
 
     protected override async Task OnInitializedAsync()
@@ -60,6 +60,8 @@
             StateHasChanged();   // refreshes everything, may interfere with your pages
             await Task.Delay(30_000);
             lastUpdatedTime = DateTime.Now.ToLongTimeString();
+            startTime = DateTime.Now.AddHours(-24);
+            endTime = DateTime.Now;
             foreach (ApplicationContext app in applications)
             {
                 app.cpuUtilization = await AwsService.GetCpuUtilizationForInstance(app.instance.InstanceId, period, startTime, endTime);

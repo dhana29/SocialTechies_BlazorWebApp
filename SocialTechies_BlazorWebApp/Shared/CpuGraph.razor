@@ -46,10 +46,10 @@
                 </RadzenArcGauge>
             </div>
 
-            <div class="chart-container container">
+            @*<div class="chart-container container">
                 <div class="row">
-                    <div class="col-sm-12">
-                        <RadzenChart >
+                    <div class="col-sm-12">*@
+                        <RadzenChart Style="width: 100%; height: 250px;" >
                             <RadzenLineSeries Title="asReports CPU Utilization" Data="application.cpuUtilization.Datapoints" ValueProperty="Maximum" CategoryProperty="TimeStamp" Smooth="true">
 
                                 <ChildContent>
@@ -75,9 +75,9 @@
                             </RadzenValueAxis>
 
                         </RadzenChart>
-                    </div>
+                    @*</div>
                 </div>
-            </div>
+            </div>*@
 
 
         }
@@ -112,9 +112,9 @@
                 </RadzenArcGauge>
             </div>*@
 
-            <div class="chart-container container">
+            @*<div class="chart-container container">
                 <div class="row">
-                    <div class="col-sm-12">
+                    <div class="col-sm-12">*@
                         <RadzenChart>
                             <RadzenLineSeries Title="asReports Status Check Failed" Data="@application.statusCheckedFailed.Datapoints" ValueProperty="Maximum" CategoryProperty="TimeStamp" Smooth="true">
 
@@ -141,9 +141,9 @@
                             </RadzenValueAxis>
 
                         </RadzenChart>
-                    </div>
+                    @*</div>
                 </div>
-            </div>
+            </div>*@
 
 
         }
