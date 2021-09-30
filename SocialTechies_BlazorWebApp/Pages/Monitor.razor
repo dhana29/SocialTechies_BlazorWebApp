@@ -10,77 +10,210 @@
 
 <h1>Monitor</h1><span class="float-right">Last updated at @theTime</span>
 
-@if (cpuUtilization == null)
+<RadzenCheckBoxList @bind-Value=@values TValue="int" Change=@(args => OnChange(args, "CheckBoxList with horizontal orientation"))>
+    <Items>
+        <RadzenCheckBoxListItem Text="CPUUtilization" Value="1" />
+        <RadzenCheckBoxListItem Text="StatusCheckFailed" Value="2" />
+        <RadzenCheckBoxListItem Text="EBSReadBytes" Value="3" />
+    </Items>
+</RadzenCheckBoxList>
+
+@if (CPUUtilizationChecked == false)
 {
-    <p><em>Loading...</em></p>
+    <p><em></em></p>
 }
 else
 {
+    @if (cpuUtilization == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <div class="col-sm-12 col-lg-8 my-3 my-lg-5">
+            <RadzenArcGauge Style="width: 100%; height: 250px;">
+                <RadzenArcGaugeScale Step="20" Min="0" Max="101" MinorStep="2" Radius="1.5" TickPosition=@tickPosition Y="0.9" Margin="0">
+                    <RadzenArcGaugeScaleValue Value=@mostRecentDataPointCPUUtilization.Maximum ShowValue=true>
+                        <Template Context="pointer">
+                            <h4>
+                                @mostRecentDataPointCPUUtilization.Maximum.ToString("##0.00")<sup>%</sup>
+                            </h4>
+                        </Template>
+                    </RadzenArcGaugeScaleValue>
+                </RadzenArcGaugeScale>
+            </RadzenArcGauge>
+        </div>
+
+        <div class="chart-container container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <RadzenChart>
+                        <RadzenLineSeries Title="asReports CPU Utilization" Data="@cpuUtilization.Datapoints" ValueProperty="Maximum" CategoryProperty="TimeStamp" Smooth="true">
+
+                            <ChildContent>
+                                <RadzenMarkers MarkerType="MarkerType.Circle" />
+                            </ChildContent>
+                            <TooltipTemplate Context="data">
+                                <div>
+                                    <div><b>@data.TimeStamp.ToString("yyyy-MM-dd HH:mm tt"):</b></div>
+                                    @(data.Maximum.ToString("##0") ?? "Unknown")%
+                                </div>
+                            </TooltipTemplate>
+                        </RadzenLineSeries>
+
+                        <RadzenCategoryAxis Padding="20">
 
 
-    <div class="col-sm-12 col-lg-8 my-3 my-lg-5">
-        <RadzenArcGauge Style="width: 100%; height: 250px;">
-            <RadzenArcGaugeScale Step="20" Min="0" Max="101" MinorStep="2" Radius="1.5" TickPosition=@tickPosition Y="0.9" Margin="0">
-                <RadzenArcGaugeScaleValue Value=@mostRecentDataPoint.Maximum ShowValue=true>
-                    <Template Context="pointer">
-                        <h4>
-                            @mostRecentDataPoint.Maximum.ToString("##0.00")<sup>%</sup>
-                        </h4>
-                    </Template>
-                </RadzenArcGaugeScaleValue>
-            </RadzenArcGaugeScale>
-        </RadzenArcGauge>
-    </div>
+                        </RadzenCategoryAxis>
 
-    <div class="chart-container container">
-        <div class="row">
-            <div class="col-sm-12">
-                <RadzenChart>
-                    <RadzenLineSeries Title="asReports CPU Utilization" Data="@cpuUtilization.Datapoints" ValueProperty="Maximum" CategoryProperty="TimeStamp" Smooth="true">
+                        <RadzenValueAxis>
+                            <RadzenGridLines Visible="false" />
+                            <RadzenAxisTitle Text="% of CPU Utilized" />
+                            <RadzenValueAxis Min="0" Max="100" Step="10" />
+                        </RadzenValueAxis>
 
-                        <ChildContent>
-                            <RadzenMarkers MarkerType="MarkerType.Circle" />
-                        </ChildContent>
-                        <TooltipTemplate Context="data">
-                            <div>
-                                <div><b>@data.TimeStamp.ToString("yyyy-MM-dd HH:mm tt"):</b></div>
-                                @(data.Maximum.ToString("##0") ?? "Unknown")%
-                            </div>
-                        </TooltipTemplate>
-                    </RadzenLineSeries>
-                    
-                    <RadzenCategoryAxis Padding="20">
-
-
-                    </RadzenCategoryAxis>
-
-                    <RadzenValueAxis>
-                        <RadzenGridLines Visible="false" />
-                        <RadzenAxisTitle Text="% of CPU Utilized" />
-                        <RadzenValueAxis Min="0" Max="100" Step="10" />
-                    </RadzenValueAxis>
-
-                </RadzenChart>
+                    </RadzenChart>
+                </div>
             </div>
         </div>
-    </div>
 
 
+    }
+}
+
+
+
+@if (StatusCheckedFailedChecked == false)
+{
+    <p><em></em></p>
+}
+else
+{
+    @if (statusCheckedFailed == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <div class="col-sm-12 col-lg-8 my-3 my-lg-5">
+            <RadzenArcGauge Style="width: 100%; height: 250px;">
+                <RadzenArcGaugeScale Step="1" Min="0" Max="10" MinorStep="1" Radius="1.5" TickPosition=@tickPosition Y="0.9" Margin="0">
+                    <RadzenArcGaugeScaleValue Value=@mostRecentDataPointStatusChecked.Maximum ShowValue=true>
+                        <Template Context="pointer">
+                            <h4>
+                                @mostRecentDataPointStatusChecked.Maximum.ToString("##0")<sup> count</sup>
+                            </h4>
+                        </Template>
+                    </RadzenArcGaugeScaleValue>
+                </RadzenArcGaugeScale>
+            </RadzenArcGauge>
+        </div>
+
+        <div class="chart-container container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <RadzenChart>
+                        <RadzenLineSeries Title="asReports Status Check Failed" Data="@statusCheckedFailed.Datapoints" ValueProperty="Maximum" CategoryProperty="TimeStamp" Smooth="true">
+
+                            <ChildContent>
+                                <RadzenMarkers MarkerType="MarkerType.Circle" />
+                            </ChildContent>
+                            <TooltipTemplate Context="data">
+                                <div>
+                                    <div><b>@data.TimeStamp.ToString("yyyy-MM-dd HH:mm tt"):</b></div>
+                                    @(data.Maximum.ToString("##0") ?? "Unknown") count
+                                </div>
+                            </TooltipTemplate>
+                        </RadzenLineSeries>
+
+                        <RadzenCategoryAxis Padding="20">
+
+
+                        </RadzenCategoryAxis>
+
+                        <RadzenValueAxis>
+                            <RadzenGridLines Visible="false" />
+                            <RadzenAxisTitle Text="Status Check Failed" />
+                            <RadzenValueAxis Min="0" Max="10" Step="1" />
+                        </RadzenValueAxis>
+
+                    </RadzenChart>
+                </div>
+            </div>
+        </div>
+
+
+    }
+}
+
+
+@if (EBSReadBytesChecked == false)
+{
+    <p><em></em></p>
+}
+else
+{
+    @if (ebsReadBytes == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <div class="chart-container container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <RadzenChart>
+                        <RadzenLineSeries Title="asReports EBS Read Mega Bytes" Data="@ebsReadBytes.Datapoints" ValueProperty="Maximum" CategoryProperty="TimeStamp" Smooth="true">
+
+                            <ChildContent>
+                                <RadzenMarkers MarkerType="MarkerType.Circle" />
+                            </ChildContent>
+
+                        </RadzenLineSeries>
+
+                        <RadzenCategoryAxis Padding="20">
+
+
+                        </RadzenCategoryAxis>
+
+                        <RadzenValueAxis>
+                            <RadzenGridLines Visible="false" />
+                            <RadzenAxisTitle Text="EBS Read Mega Bytes" />
+                            <RadzenValueAxis Min="0" Max="100000"  />
+                        </RadzenValueAxis>
+
+                    </RadzenChart>
+                </div>
+            </div>
+        </div>
+
+
+    }
 }
 
 
 @code {
-    private EcsMetrics.CpuUtilization cpuUtilization;
+    private EcsMetrics.Metric cpuUtilization;
+    private EcsMetrics.Metric statusCheckedFailed;
+    private EcsMetrics.Metric ebsReadBytes;
 
     private string autoscalingGroup = "asReports";
     private string chartName => $"{autoscalingGroup} CPU Utilization";
-    private EcsMetrics.CpuUtilization.Datapoint mostRecentDataPoint => (cpuUtilization != null && cpuUtilization.Datapoints.Count > 0) ? cpuUtilization.Datapoints[cpuUtilization.Datapoints.Count - 1] : null;
 
+    private EcsMetrics.Metric.Datapoint mostRecentDataPointCPUUtilization => (cpuUtilization != null && cpuUtilization.Datapoints.Count > 0) ? cpuUtilization.Datapoints[cpuUtilization.Datapoints.Count - 1] : null;
+    private EcsMetrics.Metric.Datapoint mostRecentDataPointStatusChecked => (statusCheckedFailed != null && statusCheckedFailed.Datapoints.Count > 0) ? statusCheckedFailed.Datapoints[statusCheckedFailed.Datapoints.Count - 1] : null;
+    private EcsMetrics.Metric.Datapoint mostRecentDataPointEBSReadBytes => (ebsReadBytes != null && ebsReadBytes.Datapoints.Count > 0) ? ebsReadBytes.Datapoints[ebsReadBytes.Datapoints.Count - 1] : null;
+
+    private bool CPUUtilizationChecked = true;
+    private bool StatusCheckedFailedChecked = true;
+    private bool EBSReadBytesChecked = true;
 
     GaugeTickPosition tickPosition = GaugeTickPosition.Outside;
     bool smooth = false;
     string title = string.Empty;
     string theTime = DateTime.Now.ToLongTimeString();
+
+    IEnumerable<int> values = new int[] { 1, 2, 3 };
 
     protected override async Task OnInitializedAsync()
     {
@@ -88,9 +221,17 @@ else
         //string instanceId = "i-01016354e1d126635";
 
         int period = 3600;
-        DateTime startTime = DateTime.Now.AddDays(-3);
+        DateTime startTime = DateTime.Now.AddDays(-1);
         DateTime endTime = DateTime.Now;
+
         cpuUtilization = await AwsService.GetCpuUtilizationForAutoscalingGroup(autoscalingGroup, period, startTime, endTime);
+        statusCheckedFailed = await AwsService.GetCpuUtilizationForAutoscalingGroup(autoscalingGroup, period, startTime, endTime, "StatusCheckFailed");
+        ebsReadBytes = await AwsService.GetCpuUtilizationForAutoscalingGroup(autoscalingGroup, period, startTime, endTime, "EBSReadBytes");
+        ebsReadBytes.Datapoints.ForEach(delegate (EcsMetrics.Metric.Datapoint dataPoint)
+        {
+            dataPoint.Maximum = dataPoint.Maximum / 8 / 1024;
+        });
+
         while (true)
         {
 
@@ -98,21 +239,35 @@ else
                                  //cpuUtilization = await AwsService.GetCpuUtilization(instanceId, period, startTime, endTime);
             await Task.Delay(30_000);
             theTime = DateTime.Now.ToLongTimeString();
-            cpuUtilization = await AwsService.GetCpuUtilizationForAutoscalingGroup(autoscalingGroup, period, startTime, endTime);
+
+            if (CPUUtilizationChecked) cpuUtilization = await AwsService.GetCpuUtilizationForAutoscalingGroup(autoscalingGroup, period, startTime, endTime, "CPUUtilization");
+            if (StatusCheckedFailedChecked) statusCheckedFailed = await AwsService.GetCpuUtilizationForAutoscalingGroup(autoscalingGroup, period, startTime, endTime, "StatusCheckFailed");
+            if (EBSReadBytesChecked)
+            {
+                ebsReadBytes = await AwsService.GetCpuUtilizationForAutoscalingGroup(autoscalingGroup, period, startTime, endTime, "EBSReadBytes");
+                ebsReadBytes.Datapoints.ForEach(delegate (EcsMetrics.Metric.Datapoint dataPoint)
+                {
+                    dataPoint.Maximum = dataPoint.Maximum / 8 / 1024;
+                });
+            }
         }
 
     }
 
-
-    string FormatTime(object value)
+    void OnChange(IEnumerable<int> value, string name)
     {
-        var datetime = (DateTime)value;
-
-        if (datetime.Hour == 0 && datetime.Minute == 0)
-            return datetime.ToString("yyyy-MM-dd");
-
-
-        return datetime.ToString("HH:mm");
+        CPUUtilizationChecked = value != null && value.Contains(1);
+        StatusCheckedFailedChecked = value != null && value.Contains(2);
+        EBSReadBytesChecked = value != null && value.Contains(3);
+        //console.Log($"{name} value changed to {string.Join(", ", value)}");
     }
+
+    string FormatAsMegaBytes(object value)
+    {
+        double? bytes = ((double)value);
+        var megaBytes = bytes.HasValue ? (bytes/8/1024) : 0;
+        return megaBytes.GetValueOrDefault().ToString("###,###,##0");
+    }
+
 
 }

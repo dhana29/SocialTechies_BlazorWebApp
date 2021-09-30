@@ -48,7 +48,7 @@ namespace SocialTechies_BlazorWebApp.Workers
         {
             var count = Interlocked.Increment(ref executionCount);
             var autoscalingGroup = _Configuration["autoscalingGroup"];
-            Task<EcsMetrics.CpuUtilization> cpuUtilization = aws.GetCpuUtilizationForAutoscalingGroup(autoscalingGroup, period, startTime, endTime);
+            Task<EcsMetrics.Metric> cpuUtilization = aws.GetCpuUtilizationForAutoscalingGroup(autoscalingGroup, period, startTime, endTime);
             if (cpuUtilization?.Result?.Datapoints?.OrderByDescending(t => t.TimeStamp).First().Maximum > 5)
             {
                 //Call Slake 
