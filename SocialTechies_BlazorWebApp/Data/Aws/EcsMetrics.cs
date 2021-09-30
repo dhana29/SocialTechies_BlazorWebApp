@@ -1,7 +1,9 @@
-﻿using System;
+﻿using SocialTechies_BlazorWebApp.Shared;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static SocialTechies_BlazorWebApp.Data.Aws.AwsService;
 
 namespace SocialTechies_BlazorWebApp.Data.Aws {
     public class EcsMetrics {
@@ -13,5 +15,20 @@ namespace SocialTechies_BlazorWebApp.Data.Aws {
             }
             public List<Datapoint> Datapoints;
         }
+    }
+
+    public class Deploy {
+        public class DeploymentGroups {
+            public List<string> deploymentGroups { get; set; }
+        }
+    }
+
+
+    public class ApplicationContext {
+        public string chartName { get; set; }
+        public AwsInstance instance { get; set; }
+        public EcsMetrics.CpuUtilization cpuUtilization { get; set; }
+        public EcsMetrics.CpuUtilization.Datapoint mostRecentDatapoint { get; set; }
+        public CpuGraph cpuGraphComponent { get; set; }
     }
 }
