@@ -1,4 +1,4 @@
-﻿@page "/monitor"
+﻿@page "/multimonitor"
 
 @using SocialTechies_BlazorWebApp.Data.Aws
 @using System.Globalization
@@ -12,21 +12,45 @@
 <span class="float-right">Last updated at @lastUpdatedTime</span>
 
 
+<div class="chart-container container">
+    <div class="row">
+        <div class="col-sm-12">
+            <RadzenChart>
 
-<table class="table">
+                @foreach (var app in applications)
+                {
+                    <RadzenLineSeries Title="@app.instance.Name" Data="@app.cpuUtilization.Datapoints" ValueProperty="Maximum" CategoryProperty="TimeStamp" Smooth="true">
 
-    <tbody>
-        @foreach (var app in applications)
-        {
-            <tr>
-                <td>
-                    <CpuGraph application=@app></CpuGraph>
-                </td>
+                        <ChildContent>
+                            <RadzenMarkers MarkerType="MarkerType.Circle" />
+                        </ChildContent>
+                        <TooltipTemplate Context="data">
+                            <div>
+                                <div><b>@data.TimeStamp.ToString("yyyy-MM-dd HH:mm tt"):</b></div>
+                                @(data.Maximum.ToString("##0") ?? "Unknown")%
+                            </div>
+                        </TooltipTemplate>
+                    </RadzenLineSeries>
+                }
 
-            </tr>
-        }
-    </tbody>
-</table>
+
+                        <RadzenCategoryAxis Padding="20">
+
+
+                        </RadzenCategoryAxis>
+
+                        <RadzenValueAxis>
+                            <RadzenGridLines Visible="false" />
+                            <RadzenAxisTitle Text="% of CPU Utilized" />
+                            <RadzenValueAxis Min="0" Max="100" Step="10" />
+                        </RadzenValueAxis>
+
+                </RadzenChart>
+        </div>
+    </div>
+</div>
+
+
 
 
 @code {
@@ -52,8 +76,8 @@
             app.cpuUtilization = await AwsService.GetCpuUtilizationForInstance(app.instance.InstanceId, period, startTime, endTime, "CPUUtilization");
             app.mostRecentDatapointcpuUtilization = (app.cpuUtilization != null && app.cpuUtilization.Datapoints.Count > 0) ? app.cpuUtilization.Datapoints[app.cpuUtilization.Datapoints.Count - 1] : null;
 
-            app.statusCheckedFailed = await AwsService.GetCpuUtilizationForInstance(app.instance.InstanceId, period, startTime, endTime, "StatusCheckFailed");
-            app.mostRecentDatapointstatusCheckedFailed = (app.statusCheckedFailed != null && app.statusCheckedFailed.Datapoints.Count > 0) ? app.statusCheckedFailed.Datapoints[app.statusCheckedFailed.Datapoints.Count - 1] : null;
+            //app.statusCheckedFailed = await AwsService.GetCpuUtilizationForInstance(app.instance.InstanceId, period, startTime, endTime, "StatusCheckFailed");
+            //app.mostRecentDatapointstatusCheckedFailed = (app.statusCheckedFailed != null && app.statusCheckedFailed.Datapoints.Count > 0) ? app.statusCheckedFailed.Datapoints[app.statusCheckedFailed.Datapoints.Count - 1] : null;
 
             //app.ebsReadBytes = await AwsService.GetCpuUtilizationForInstance(app.instance.InstanceId, period, startTime, endTime, "EBSReadBytes");
             //app.ebsReadBytes.Datapoints.ForEach(delegate (EcsMetrics.Metric.Datapoint dataPoint)
@@ -72,8 +96,8 @@
                 app.cpuUtilization = await AwsService.GetCpuUtilizationForInstance(app.instance.InstanceId, period, startTime, endTime);
                 app.mostRecentDatapointcpuUtilization = (app.cpuUtilization != null && app.cpuUtilization.Datapoints.Count > 0) ? app.cpuUtilization.Datapoints[app.cpuUtilization.Datapoints.Count - 1] : null;
 
-                app.statusCheckedFailed = await AwsService.GetCpuUtilizationForInstance(app.instance.InstanceId, period, startTime, endTime, "StatusCheckFailed");
-                app.mostRecentDatapointstatusCheckedFailed = (app.statusCheckedFailed != null && app.statusCheckedFailed.Datapoints.Count > 0) ? app.statusCheckedFailed.Datapoints[app.statusCheckedFailed.Datapoints.Count - 1] : null;
+                //app.statusCheckedFailed = await AwsService.GetCpuUtilizationForInstance(app.instance.InstanceId, period, startTime, endTime, "StatusCheckFailed");
+                //app.mostRecentDatapointstatusCheckedFailed = (app.statusCheckedFailed != null && app.statusCheckedFailed.Datapoints.Count > 0) ? app.statusCheckedFailed.Datapoints[app.statusCheckedFailed.Datapoints.Count - 1] : null;
 
                 //app.ebsReadBytes = await AwsService.GetCpuUtilizationForInstance(app.instance.InstanceId, period, startTime, endTime, "EBSReadBytes");
                 //app.ebsReadBytes.Datapoints.ForEach(delegate (EcsMetrics.Metric.Datapoint dataPoint)

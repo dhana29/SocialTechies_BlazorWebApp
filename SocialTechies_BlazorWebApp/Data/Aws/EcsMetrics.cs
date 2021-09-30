@@ -27,8 +27,21 @@ namespace SocialTechies_BlazorWebApp.Data.Aws {
     public class ApplicationContext {
         public string chartName { get; set; }
         public AwsInstance instance { get; set; }
-        public EcsMetrics.CpuUtilization cpuUtilization { get; set; }
-        public EcsMetrics.CpuUtilization.Datapoint mostRecentDatapoint { get; set; }
+        
+        public EcsMetrics.Metric cpuUtilization { get; set; }
+        public EcsMetrics.Metric.Datapoint mostRecentDatapointcpuUtilization { get; set; }
+
+        public EcsMetrics.Metric statusCheckedFailed { get; set; }
+        public EcsMetrics.Metric.Datapoint mostRecentDatapointstatusCheckedFailed { get; set; }
+
+        public EcsMetrics.Metric ebsReadBytes { get; set; }
+
         public CpuGraph cpuGraphComponent { get; set; }
+
+        public CpuGraph statusCheckedFailedGraphComponent { get; set; }
+
+        public CpuGraph ebsReadBytesComponent { get; set; }
+
+        public IEnumerable<int> checkBoxes = new int[] { 1, 2, 3 };
     }
 }

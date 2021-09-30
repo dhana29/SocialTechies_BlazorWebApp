@@ -2,75 +2,189 @@
 @using SocialTechies_BlazorWebApp.Data.Aws
 
 
-<h3>@application.instance.Name</h3>
 
-@if (application.cpuUtilization == null) {
-    <p><em>Loading...</em></p>
-}
-else {
-    <div class="col-sm-12 col-lg-8 my-3 my-lg-5">
-        <RadzenArcGauge Style="width: 100%; height: 250px;">
-            <RadzenArcGaugeScale Step="20" Min="0" Max="101" MinorStep="2" Radius="1.5" TickPosition=@GaugeTickPosition.Outside Y="0.9" Margin="0">
-                <RadzenArcGaugeScaleValue Value=@application.mostRecentDatapoint.Maximum ShowValue=true>
-                    <Template Context="pointer">
-                        <h4>
-                            @application.mostRecentDatapoint.Maximum.ToString("##0.00")<sup>%</sup>
-                        </h4>
-                    </Template>
-                </RadzenArcGaugeScaleValue>
-            </RadzenArcGaugeScale>
-        </RadzenArcGauge>
-    </div>
-
-    <div class="chart-container container">
-        <div class="row">
-            <div class="col-sm-12">
-                <RadzenChart>
-                    <RadzenLineSeries Title=@application.chartName Data="@application.cpuUtilization.Datapoints" ValueProperty="Maximum" CategoryProperty="TimeStamp" Smooth="true">
-
-                        <ChildContent>
-                            <RadzenMarkers MarkerType="MarkerType.Circle" />
-                        </ChildContent>
-                        <TooltipTemplate Context="data">
-                            <div>
-                                <div><b>@data.TimeStamp.ToString("yyyy-MM-dd HH:mm tt"):</b></div>
-                                @(data.Maximum.ToString("##0") ?? "Unknown")%
-                            </div>
-                        </TooltipTemplate>
-                    </RadzenLineSeries>
-
-                    <RadzenCategoryAxis Padding="20">
+<div class="container">
 
 
-                    </RadzenCategoryAxis>
 
-                    <RadzenValueAxis>
-                        <RadzenGridLines Visible="false" />
-                        <RadzenAxisTitle Text="% of CPU Utilized" />
-                        <RadzenValueAxis Min="0" Max="100" Step="10" />
-                    </RadzenValueAxis>
+</div>
 
-                </RadzenChart>
+<RadzenCheckBoxList @bind-Value=@values TValue="int" Change=@(args => OnChange(args, "CheckBoxList with horizontal orientation"))>
+    <Items>
+        <RadzenCheckBoxListItem Text="CPUUtilization" Value="1" />
+        <RadzenCheckBoxListItem Text="StatusCheckFailed" Value="2" />
+    </Items>
+</RadzenCheckBoxList>
+
+    <h3>@application.instance.Name</h3>
+
+
+
+    @if (!CPUUtilizationChecked)
+    {
+        <p><em></em></p>
+    }
+    else
+    {
+        @if (application.cpuUtilization == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <div class="col-sm-12 col-lg-8 my-3 my-lg-5">
+                <RadzenArcGauge Style="width: 100%; height: 250px;">
+                    <RadzenArcGaugeScale Step="20" Min="0" Max="101" MinorStep="2" Radius="1.5" TickPosition=@tickPosition Y="0.9" Margin="0">
+                        <RadzenArcGaugeScaleValue Value=@application.mostRecentDatapointcpuUtilization.Maximum ShowValue=true>
+                            <Template Context="pointer">
+                                <h4>
+                                    @application.mostRecentDatapointcpuUtilization.Maximum.ToString("##0.00")<sup>%</sup>
+                                </h4>
+                            </Template>
+                        </RadzenArcGaugeScaleValue>
+                    </RadzenArcGaugeScale>
+                </RadzenArcGauge>
             </div>
-        </div>
-    </div>
-}
 
-@code {
-    [Parameter]
-    public ApplicationContext application { get; set; }
+            <div class="chart-container container">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <RadzenChart>
+                            <RadzenLineSeries Title="asReports CPU Utilization" Data="application.cpuUtilization.Datapoints" ValueProperty="Maximum" CategoryProperty="TimeStamp" Smooth="true">
 
-    public void Refresh() {
-        StateHasChanged();
+                                <ChildContent>
+                                    <RadzenMarkers MarkerType="MarkerType.Circle" />
+                                </ChildContent>
+                                <TooltipTemplate Context="data">
+                                    <div>
+                                        <div><b>@data.TimeStamp.ToString("yyyy-MM-dd HH:mm tt"):</b></div>
+                                        @(data.Maximum.ToString("##0") ?? "Unknown")%
+                                    </div>
+                                </TooltipTemplate>
+                            </RadzenLineSeries>
+
+                            <RadzenCategoryAxis Padding="20">
+
+
+                            </RadzenCategoryAxis>
+
+                            <RadzenValueAxis>
+                                <RadzenGridLines Visible="false" />
+                                <RadzenAxisTitle Text="% of CPU Utilized" />
+                                <RadzenValueAxis Min="0" Max="100" Step="10" />
+                            </RadzenValueAxis>
+
+                        </RadzenChart>
+                    </div>
+                </div>
+            </div>
+
+
+        }
     }
 
-    string FormatTime(object value) {
-        var datetime = (DateTime)value;
-
-        if (datetime.Hour == 0 && datetime.Minute == 0)
-            return datetime.ToString("yyyy-MM-dd");
 
 
-        return datetime.ToString("HH:mm");
+
+    @if (!StatusCheckedFailedChecked)
+    {
+        <p><em></em></p>
     }
-}
+    else
+    {
+        @if (application.statusCheckedFailed == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            @*<div class="col-sm-12 col-lg-8 my-3 my-lg-5">
+                <RadzenArcGauge Style="width: 100%; height: 250px;">
+                    <RadzenArcGaugeScale Step="1" Min="0" Max="10" MinorStep="1" Radius="1.5" TickPosition=@tickPosition Y="0.9" Margin="0">
+                        <RadzenArcGaugeScaleValue Value=@application.mostRecentDatapointstatusCheckedFailed.Maximum ShowValue=true>
+                            <Template Context="pointer">
+                                <h4>
+                                    @application.mostRecentDatapointstatusCheckedFailed.Maximum.ToString("##0")<sup> count</sup>
+                                </h4>
+                            </Template>
+                        </RadzenArcGaugeScaleValue>
+                    </RadzenArcGaugeScale>
+                </RadzenArcGauge>
+            </div>*@
+
+            <div class="chart-container container">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <RadzenChart>
+                            <RadzenLineSeries Title="asReports Status Check Failed" Data="@application.statusCheckedFailed.Datapoints" ValueProperty="Maximum" CategoryProperty="TimeStamp" Smooth="true">
+
+                                <ChildContent>
+                                    <RadzenMarkers MarkerType="MarkerType.Circle" />
+                                </ChildContent>
+                                <TooltipTemplate Context="data">
+                                    <div>
+                                        <div><b>@data.TimeStamp.ToString("yyyy-MM-dd HH:mm tt"):</b></div>
+                                        @(data.Maximum.ToString("##0") ?? "Unknown") count
+                                    </div>
+                                </TooltipTemplate>
+                            </RadzenLineSeries>
+
+                            <RadzenCategoryAxis Padding="20">
+
+
+                            </RadzenCategoryAxis>
+
+                            <RadzenValueAxis>
+                                <RadzenGridLines Visible="false" />
+                                <RadzenAxisTitle Text="Status Check Failed" />
+                                <RadzenValueAxis Min="0" Max="10" Step="1" />
+                            </RadzenValueAxis>
+
+                        </RadzenChart>
+                    </div>
+                </div>
+            </div>
+
+
+        }
+    }
+
+
+
+
+
+
+    @code {
+        [Parameter]
+        public ApplicationContext application { get; set; }
+
+        GaugeTickPosition tickPosition = GaugeTickPosition.Outside;
+
+        private bool CPUUtilizationChecked = true;
+        private bool StatusCheckedFailedChecked = true;
+        IEnumerable<int> values = new int[] { 1, 2 };
+
+        public void Refresh()
+        {
+            StateHasChanged();
+        }
+
+        string FormatTime(object value)
+        {
+            var datetime = (DateTime)value;
+
+            if (datetime.Hour == 0 && datetime.Minute == 0)
+                return datetime.ToString("yyyy-MM-dd");
+
+
+            return datetime.ToString("HH:mm");
+        }
+
+        void OnChange(IEnumerable<int> value, string name)
+        {
+            CPUUtilizationChecked = value != null && value.Contains(1);
+            StatusCheckedFailedChecked = value != null && value.Contains(2);
+            //EBSReadBytesChecked = value != null && value.Contains(3);
+            //console.Log($"{name} value changed to {string.Join(", ", value)}");
+        }
+    }
