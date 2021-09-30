@@ -42,12 +42,13 @@
             app.chartName = $"{app.instance.Name} CPU Utilization";
             app.cpuUtilization = await AwsService.GetCpuUtilizationForInstance(app.instance.InstanceId, period, startTime, endTime);
             app.mostRecentDatapoint = (app.cpuUtilization != null && app.cpuUtilization.Datapoints.Count > 0) ? app.cpuUtilization.Datapoints[app.cpuUtilization.Datapoints.Count - 1] : null;
-            while (true) {
-                //await InvokeAsync(StateHasChanged);
-                StateHasChanged();   // refreshes everything, may interfere with your pages
-                @*app.cpuGraphComponent?.Refresh();*@
-                await Task.Delay(30_000);
-                lastUpdatedTime = DateTime.Now.ToLongTimeString();
+        }
+
+        while (true) {
+            StateHasChanged();   // refreshes everything, may interfere with your pages
+            await Task.Delay(30_000);
+            lastUpdatedTime = DateTime.Now.ToLongTimeString();
+            foreach (ApplicationContext app in applications) {
                 app.cpuUtilization = await AwsService.GetCpuUtilizationForInstance(app.instance.InstanceId, period, startTime, endTime);
                 app.mostRecentDatapoint = (app.cpuUtilization != null && app.cpuUtilization.Datapoints.Count > 0) ? app.cpuUtilization.Datapoints[app.cpuUtilization.Datapoints.Count - 1] : null;
             }
