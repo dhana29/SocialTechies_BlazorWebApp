@@ -1,0 +1,62 @@
+﻿@using Radzen
+@using SocialTechies_BlazorWebApp.Data.Aws
+
+
+<h3>@application.name</h3>
+
+@if (application.cpuUtilization == null) {
+    <p><em>Loading...</em></p>
+}
+else {
+    <div class="col-sm-12 col-lg-8 my-3 my-lg-5">
+        <RadzenArcGauge Style="width: 100%; height: 250px;">
+            <RadzenArcGaugeScale Step="20" Min="0" Max="101" MinorStep="2" Radius="1.5" TickPosition=@GaugeTickPosition.Outside Y="0.9" Margin="0">
+                <RadzenArcGaugeScaleValue Value=@application.mostRecentDatapoint.Maximum ShowValue=true>
+                    <Template Context="pointer">
+                        <h4>
+                            @application.mostRecentDatapoint.Maximum.ToString("##0.00")<sup>%</sup>
+                        </h4>
+                    </Template>
+                </RadzenArcGaugeScaleValue>
+            </RadzenArcGaugeScale>
+        </RadzenArcGauge>
+    </div>
+
+    <div class="chart-container container">
+        <div class="row">
+            <div class="col-sm-12">
+                <RadzenChart>
+                    <RadzenLineSeries Title=@application.chartName Data="@application.cpuUtilization.Datapoints" ValueProperty="Maximum" CategoryProperty="TimeStamp" Smooth="true">
+
+                        <ChildContent>
+                            <RadzenMarkers MarkerType="MarkerType.Circle" />
+                        </ChildContent>
+                        <TooltipTemplate Context="data">
+                            <div>
+                                <div><b>@data.TimeStamp.ToString("yyyy-MM-dd HH:mm tt"):</b></div>
+                                @(data.Maximum.ToString("##0") ?? "Unknown")%
+                            </div>
+                        </TooltipTemplate>
+                    </RadzenLineSeries>
+
+                    <RadzenCategoryAxis Padding="20">
+
+
+                    </RadzenCategoryAxis>
+
+                    <RadzenValueAxis>
+                        <RadzenGridLines Visible="false" />
+                        <RadzenAxisTitle Text="% of CPU Utilized" />
+                        <RadzenValueAxis Min="0" Max="100" Step="10" />
+                    </RadzenValueAxis>
+
+                </RadzenChart>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public ApplicationContext application { get; set; }
+}

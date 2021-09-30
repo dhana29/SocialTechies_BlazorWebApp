@@ -14,4 +14,19 @@ namespace SocialTechies_BlazorWebApp.Data.Aws {
             public List<Datapoint> Datapoints;
         }
     }
+
+    public class Deploy {
+        public class DeploymentGroups {
+            public List<string> deploymentGroups { get; set; }
+        }
+    }
+
+
+    public class ApplicationContext {
+        public string name { get; set; }
+        public string chartName { get; set; }
+        public string deploymentGroup { get; set; }
+        public EcsMetrics.CpuUtilization cpuUtilization { get; set; }
+        public EcsMetrics.CpuUtilization.Datapoint mostRecentDatapoint { get; set; }
+    }
 }

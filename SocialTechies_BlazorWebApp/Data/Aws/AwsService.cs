@@ -26,6 +26,12 @@ namespace SocialTechies_BlazorWebApp.Data.Aws
             );
         }
 
+        public Task<Deploy.DeploymentGroups> GetDeploymentGroupsFromApplicationName(string applicationName) {
+            return Task.FromResult(
+                JsonConvert.DeserializeObject<Deploy.DeploymentGroups>(RunAwsProcessAsync($"deploy list-deployment-groups --application-name {applicationName}").Result)
+            );
+        }
+
 
         private Task<string> RunAwsProcessAsync(string parameters)
         {
