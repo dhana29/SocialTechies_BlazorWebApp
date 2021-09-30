@@ -11,18 +11,19 @@
 
 <span class="float-right">Last updated at @lastUpdatedTime</span>
 
-
 @foreach (var app in applications) {
     <CpuGraph application=@app></CpuGraph>
 }
+
+
 
 @code {
     private List<AwsInstance> awsInstances = null;
     private List<ApplicationContext> applications = new List<ApplicationContext>();
     string lastUpdatedTime = DateTime.Now.ToLongTimeString();
 
-    int period = 3600; // 1 hour
-    DateTime startTime = DateTime.Now.AddDays(-1);
+    int period = 900; // 15 minutes
+    DateTime startTime = DateTime.Now.AddHours(-3);
     DateTime endTime = DateTime.Now;
 
     protected override async Task OnInitializedAsync() {
