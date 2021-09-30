@@ -12,57 +12,46 @@
 
 <span class="float-right">Last updated at @lastUpdatedTime</span>
 
-@foreach (var app in applications)
+@*@for (int i = 0; i < applications.Count; i++)
 {
+    var app = applications[i];
+    <CpuGraph @bind-application=@app></CpuGraph>
+}*@
+
+
+@foreach (var app in applications) {
     <CpuGraph application=@app></CpuGraph>
+    @*<CpuGraph application=@app @ref=@app.cpuGraphComponent></CpuGraph>*@
 }
 
-
-
 @code {
-    private List<string> applicationNames = new List<string>() { "asReports", "asGnipReceiver", "asAPI" };
-    private List<ApplicationContext> applications => applicationNames.Select(a => {
-        return new ApplicationContext() {
-            name = a,
-            chartName = $"{a} CPU Utilization"
-        };
-    }).ToList();
+    private List<AwsInstance> awsInstances = null;
+    private List<ApplicationContext> applications = new List<ApplicationContext>();
     string lastUpdatedTime = DateTime.Now.ToLongTimeString();
 
-    protected override async Task OnInitializedAsync() {
-        int period = 3600; // 1 hour
-        DateTime startTime = DateTime.Now.AddDays(-1);
-        DateTime endTime = DateTime.Now;
-        foreach (ApplicationContext app in applications) {
+    int period = 3600; // 1 hour
+    DateTime startTime = DateTime.Now.AddDays(-1);
+    DateTime endTime = DateTime.Now;
 
-            Deploy.DeploymentGroups deploymentInfo = await AwsService.GetDeploymentGroupsFromApplicationName(app.name);
-            app.deploymentGroup = deploymentInfo.deploymentGroups.Count > 0 ? deploymentInfo.deploymentGroups[0] : null;
-            if (app.deploymentGroup != null) {
-                app.cpuUtilization = await AwsService.GetCpuUtilizationForAutoscalingGroup(app.deploymentGroup, period, startTime, endTime);
+    protected override async Task OnInitializedAsync() {
+
+        awsInstances = await AwsService.GetInstanceInfo("astutesocial");
+        applications = awsInstances.Select(a => new ApplicationContext() { instance = a }).ToList();
+
+        foreach (ApplicationContext app in applications) {
+            app.chartName = $"{app.instance.Name} CPU Utilization";
+            app.cpuUtilization = await AwsService.GetCpuUtilizationForInstance(app.instance.InstanceId, period, startTime, endTime);
+            app.mostRecentDatapoint = (app.cpuUtilization != null && app.cpuUtilization.Datapoints.Count > 0) ? app.cpuUtilization.Datapoints[app.cpuUtilization.Datapoints.Count - 1] : null;
+            while (true) {
+                //await InvokeAsync(StateHasChanged);
+                StateHasChanged();   // refreshes everything, may interfere with your pages
+                @*app.cpuGraphComponent?.Refresh();*@
+                await Task.Delay(30_000);
+                lastUpdatedTime = DateTime.Now.ToLongTimeString();
+                app.cpuUtilization = await AwsService.GetCpuUtilizationForInstance(app.instance.InstanceId, period, startTime, endTime);
                 app.mostRecentDatapoint = (app.cpuUtilization != null && app.cpuUtilization.Datapoints.Count > 0) ? app.cpuUtilization.Datapoints[app.cpuUtilization.Datapoints.Count - 1] : null;
-                while (true) {
-                    StateHasChanged();   // refreshes everything, may interfere with your pages
-                    await Task.Delay(30_000);
-                    lastUpdatedTime = DateTime.Now.ToLongTimeString();
-                    app.cpuUtilization = await AwsService.GetCpuUtilizationForAutoscalingGroup(app.deploymentGroup, period, startTime, endTime);
-                    app.mostRecentDatapoint = (app.cpuUtilization != null && app.cpuUtilization.Datapoints.Count > 0) ? app.cpuUtilization.Datapoints[app.cpuUtilization.Datapoints.Count - 1] : null;
-                }
             }
         }
 
     }
-
-
-    string FormatTime(object value) {
-        var datetime = (DateTime)value;
-
-        if (datetime.Hour == 0 && datetime.Minute == 0)
-            return datetime.ToString("yyyy-MM-dd");
-
-
-        return datetime.ToString("HH:mm");
-    }
-
-
-
 }

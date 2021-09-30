@@ -2,7 +2,7 @@
 @using SocialTechies_BlazorWebApp.Data.Aws
 
 
-<h3>@application.name</h3>
+<h3>@application.instance.Name</h3>
 
 @if (application.cpuUtilization == null) {
     <p><em>Loading...</em></p>
@@ -59,4 +59,18 @@ else {
 @code {
     [Parameter]
     public ApplicationContext application { get; set; }
+
+    public void Refresh() {
+        StateHasChanged();
+    }
+
+    string FormatTime(object value) {
+        var datetime = (DateTime)value;
+
+        if (datetime.Hour == 0 && datetime.Minute == 0)
+            return datetime.ToString("yyyy-MM-dd");
+
+
+        return datetime.ToString("HH:mm");
+    }
 }
